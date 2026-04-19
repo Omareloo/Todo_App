@@ -11,52 +11,60 @@
           </div>
         </q-card-section>
 
-        <q-card-section class="column q-gutter-md">
+        <q-form ref="form" @submit.prevent="submitTask">
+          <q-card-section class="column q-gutter-md">
 
-          <q-input outlined v-model="title" label="Task Title" class="full-width" />
-          <q-input outlined v-model="description" label="Task Description" class="full-width" />
-          <div class="row q-col-gutter-md items-start q-mt-md">
-            <div class="col-12 col-md-6">
-              <q-input outlined v-model="date" label="Due Date" class="full-width">
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                      <q-date v-model="date">
-                        <div class="row justify-end">
-                          <q-btn v-close-popup label="Close" flat color="primary" />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
+            <q-input outlined v-model="title" label="Task Title" class="full-width"
+              :rules="[val => !!val || 'Field is required', val => val.length >= 3 || 'Minimum length is 3']" />
+            <q-input outlined v-model="description" label="Task Description" class="full-width"
+              :rules="[val => !!val || 'Field is required']" />
+            <div class="row q-col-gutter-md items-start q-mt-md">
+              <div class="col-12 col-md-6">
+                <q-input outlined v-model="date" label="Due Date" class="full-width"
+                  :rules="[val => !!val || 'Field is required']">
+                  <template v-slot:append>
+                    <q-icon name="event" class="cursor-pointer">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                        <q-date v-model="date">
+                          <div class="row justify-end">
+                            <q-btn v-close-popup label="Close" flat color="primary" />
+                          </div>
+                        </q-date>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input outlined v-model="time" label="Due Time" class="full-width"
+                  :rules="[val => !!val || 'Field is required']">
+                  <template v-slot:append>
+                    <q-icon name="access_time" class="cursor-pointer">
+                      <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                        <q-time v-model="time">
+                          <div class="row justify-end">
+                            <q-btn v-close-popup label="Close" flat color="primary" />
+                          </div>
+                        </q-time>
+                      </q-popup-proxy>
+                    </q-icon>
+                  </template>
+                </q-input>
+              </div>
             </div>
-            <div class="col-12 col-md-6">
-              <q-input outlined v-model="time" label="Due Time" class="full-width">
-                <template v-slot:append>
-                  <q-icon name="access_time" class="cursor-pointer">
-                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                      <q-time v-model="time">
-                        <div class="row justify-end">
-                          <q-btn v-close-popup label="Close" flat color="primary" />
-                        </div>
-                      </q-time>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
-            </div>
-          </div>
-          <q-select outlined v-model="priority" :options="['High', 'Medium', 'Low']" label="Priority (Required)"
-            class="full-width" behavior="menu" options-cover />
-        </q-card-section>
+            <q-select outlined v-model="priority" :options="['High', 'Medium', 'Low']" label="Priority (Required)"
+              class="full-width" behavior="menu" options-cover :rules="[val => !!val || 'Field is required']" />
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn color="primary" :loading="loading" type="submit">
+              Save
+            </q-btn>
+          </q-card-actions>
+        </q-form>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn color="primary" :loading="loading" @click="submitTask">
-            Save
-          </q-btn>
-        </q-card-actions>
+
+
 
       </q-card>
 
@@ -137,6 +145,10 @@ export default {
       this.priority = null
     },
     submitTask() {
+      const isValid = this.$refs.form.validate()
+
+      if (!isValid) return
+
       this.loading = true
 
       const task = {

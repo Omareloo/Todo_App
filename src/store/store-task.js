@@ -44,6 +44,20 @@ export default {
         saveTasks(state.tasks)
       }
     },
+    SOFT_DELETE(state, id) {
+      const task = state.tasks.find((t) => t.id === id)
+      if (task) task.deleted = true
+      saveTasks(state.tasks)
+    },
+
+    RESTORE_TASK(state, id) {
+      const task = state.tasks.find((t) => t.id === id)
+      if (task) {
+        task.deleted = false
+        task.done = false
+      }
+      saveTasks(state.tasks)
+    },
   },
 
   getters: {
